@@ -1,0 +1,128 @@
+@import './base.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .form-label {
+        @apply block mb-2 text-sm font-medium text-gray-900 dark:text-white;
+    }
+
+    .form-control {
+        @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5;
+        @apply focus:ring-blue-500 focus:border-emerald-500 focus-visible:outline-none;
+        @apply dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500;
+    }
+
+    .form-select {
+        @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 block w-full p-2.5;
+        @apply focus:border-emerald-600 focus-visible:outline-none;
+        @apply dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500;
+    }
+
+    .input-radio {
+        @apply w-4 h-4 border-gray-300 focus:ring-2 focus:accent-emerald-300 dark:focus:ring-emerald-500 dark:focus:bg-emerald-500 dark:bg-gray-700 dark:border-gray-600;
+    }
+
+    .button-main {
+        @apply text-white bg-emerald-400 hover:bg-emerald-500 font-bold rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center;
+        @apply active:outline-none focus:ring-4 focus:outline-none focus:ring-blue-300;
+    }
+
+    .tooltip-wrapper {
+        @apply absolute z-20 bg-gray-600 rounded-lg text-white px-2 py-0.5 -top-3/4 -left-1/2;
+    }
+
+    .tooltip-wrapper:after {
+        @apply absolute left-7 top-6 w-0 border-t-8 border-t-gray-600 border-r-8 border-r-transparent border-l-8 border-l-transparent;
+        content: " ";
+        font-size: 0;
+        line-height: 0;
+    }
+
+    .tooltip {
+        @apply py-0.5 px-2 bg-gray-600 text-white text-center rounded-lg left-1/2 -translate-x-1/2;
+    }
+    .tooltip .tooltip-box {
+        @apply relative;
+    }
+    .tooltip .triangle {
+        @apply absolute -bottom-2 left-1/2;
+        @apply border-t-8 border-t-gray-600 border-r-8 border-r-transparent border-l-8 border-l-transparent -translate-x-1/2;
+    }
+}
+
+#app {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    height: 100%;
+    font-weight: normal;
+}
+
+a,
+.green {
+    text-decoration: none;
+    color: hsla(160, 100%, 37%, 1);
+    transition: 0.4s;
+}
+
+@media (hover: hover) {
+    a:hover {
+        background-color: hsla(160, 100%, 37%, 0.2);
+    }
+}
+
+@media (min-width: 1024px) {
+    body {
+        display: flex;
+        place-items: center;
+    }
+
+    #app {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        padding: 0 2rem;
+    }
+}
+
+nav {
+    width: 100%;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+nav a.router-link-exact-active {
+    color: var(--color-text);
+}
+
+nav a.router-link-exact-active:hover {
+    background-color: transparent;
+}
+
+nav a {
+    display: inline-block;
+    padding: 0 1rem;
+    border-left: 1px solid var(--color-border);
+}
+
+nav a:first-of-type {
+    border: 0;
+}
+
+header {
+    line-height: 1.5;
+    max-height: 100vh;
+}
+
+.v-enter-active,
+.v-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
+}
