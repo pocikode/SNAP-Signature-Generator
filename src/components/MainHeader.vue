@@ -8,10 +8,14 @@
     </nav>
     <div class="mt-3 py-3 flex flex-col items-center">
 <!--      <h3 class="text-center">made with <span class="text-red-600">❤️</span> using Vue.js</h3>-->
-      <a href="https://github.com/pocikode/SNAP-Signature-Generator" target="_blank" class=""><GithubIcon /></a>
+      <div class="flex">
+        <a href="https://github.com/pocikode/SNAP-Signature-Generator" target="_blank" class="mr-3"><GithubIcon /></a>
+        <a href="https://github1s.com/pocikode/SNAP-Signature-Generator" target="_blank" class=""><Github1sIcon /></a>
+      </div>
     </div>
   </header>
 </template>
 <script setup>
 import GithubIcon from "@/components/icons/GithubIcon.vue";
+import Github1sIcon from "@/components/icons/Github1sIcon.vue";
 </script>

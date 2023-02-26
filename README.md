@@ -1,5 +1,7 @@
 # snap-signature-generator
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/f7f5a4c3-7881-4d92-9461-2831ec7eb790/deploy-status)](https://app.netlify.com/sites/snap-signature-generator/deploys)
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
