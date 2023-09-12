@@ -1,10 +1,10 @@
 <template>
-  <div class="w-100 bg-emerald-100 px-4 py-5 rounded mb-4">
+  <div class="w-100 dark:bg-gray-700 bg-emerald-100 px-4 py-5 rounded mb-4">
     <div class="flex justify-between">
-      <span class="font-bold">Signature:</span><br>
+      <span class="font-bold text-white">Signature:</span><br>
       <button type="button"
               @click="copy"
-              class="rounded bg-emerald-300 hover:bg-emerald-400 px-2 py-1 mb-2"
+              class="button-main rounded hover:bg-emerald-500 text-white font-medium px-2 py-1 mb-2"
       >
         Click to copy
       </button>
@@ -14,7 +14,7 @@
         </div>
       </Transition>
     </div>
-    <span class="break-all">{{ signature }}</span>
+    <span class="break-all text-white">{{ signature }}</span>
   </div>
   <Transition>
 

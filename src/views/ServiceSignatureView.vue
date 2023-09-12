@@ -34,9 +34,39 @@
       </div>
     </div>
     <div class="mb-4">
-      <label for="access-token">Access Token (B2B)</label>
-      <input type="text" id="access-token" class="form-control" v-model="access_token"
-             placeholder="eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ....."/>
+      <label for="access-token">Access Token (B2B)
+        <span class="text-xs ml-1 text-white"> - &nbsp;Status:
+          <span v-show="token_status.valid" class="font-semibold text-green-600">{{ token_status.valid_message }}</span>
+          <span v-show="token_status.invalid" class="font-semibold text-red-600">{{ token_status.invalid_message }}</span>
+        </span>
+      </label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-2">
+          <button type="button" @click="copyToken" class="bg-emerald-400 hover:bg-emerald-600 z-20 px-1 py-1 rounded">
+            <IconCopy class="text-white"/>
+          </button>
+          <Transition>
+            <div v-show="showClipTokenTooltip" class="tooltip absolute z-20 left-[unset] -right-14 -top-8">
+              <span class="triangle"></span>Copied!
+            </div>
+          </Transition>
+        </div>
+        <input type="text" @keyup="inputToken" id="access-token" class="form-control pl-11 pr-20" v-model="access_token"
+               placeholder="eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ....."/>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2">
+          <button type="button" @click="getToken" :disabled="get_token.loading"
+                  class="bg-orange-400 hover:bg-orange-500 z-20 px-1 py-1 text-xs text-white rounded">
+            <transition name="v-btn-label" mode="out-in">
+              <div v-if="get_token.loading">
+                <LoadingSpinner class="w-3.5 h-3.5 my-0.5 mx-0.5" />
+              </div>
+              <span v-else>
+                Get Token
+              </span>
+            </transition>
+          </button>
+        </div>
+      </div>
     </div>
     <div class="mb-4">
       <label for="payload">JSON Payload</label>
@@ -65,10 +95,12 @@ import moment from "moment";
 import sha256 from "crypto-js/sha256";
 import SignatureResult from "@/components/SignatureResult.vue";
 import InputTimestamp from "@/components/InputTimestamp.vue";
-import {symmetricEncryption, asymmetricEncryption} from "@/assets/helpers";
+import {symmetricEncryption, asymmetricEncryption, getTokenB2B} from "@/assets/helpers";
+import IconCopy from "@/components/icons/IconCopy.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 export default {
-  components: {InputTimestamp, SignatureResult},
+  components: {LoadingSpinner, IconCopy, InputTimestamp, SignatureResult},
   beforeMount() {
     if (!localStorage.getItem('merchant_id') || !localStorage.getItem('secret_key' || !localStorage.getItem('private_key'))) {
       alert('Setup credential first!')
@@ -82,6 +114,7 @@ export default {
       this.endpoint = sign_payload.endpoint
       this.access_token = sign_payload.access_token
       this.payload = sign_payload.payload
+      this.validateToken()
     }
   },
   data() {
@@ -90,6 +123,8 @@ export default {
       SYMMETRIC_SIGNATURE: 'SYMMETRIC_SIGNATURE',
       success: false,
       error: false,
+      token_active: false,
+      token_inactive: false,
       error_text: '',
       signature_type: 'SYMMETRIC_SIGNATURE',
       http_method: 'POST',
@@ -98,6 +133,19 @@ export default {
       payload: '',
       timestamp: '',
       signature: '',
+      showClipTokenTooltip: false,
+      token_status: {
+        valid: false,
+        invalid: false,
+        valid_message: '',
+        invalid_message: '',
+        timeout_typing: null,
+      },
+      get_token: {
+        loading: false,
+        success: false,
+        reset_timer: null,
+      }
     }
   },
   methods: {
@@ -123,6 +171,7 @@ export default {
       }
 
       this.success = this.signature !== false
+      this.validateToken()
 
       localStorage.setItem('str_symmetric_payload', JSON.stringify({
         'endpoint': this.endpoint,
@@ -138,6 +187,84 @@ export default {
       localStorage.setItem('str_symmetric_payload', null)
       this.success = false
     },
+    copyToken() {
+      this.$copyText(this.access_token).then(() => {
+        this.showClipTokenTooltip = true
+        setTimeout(() => this.showClipTokenTooltip = false, 1500)
+      })
+    },
+    inputToken() {
+      clearTimeout(this.token_status.timeout_typing)
+      const self = this
+      this.token_status.timeout_typing = setTimeout(() => {
+        self.validateToken()
+      }, 400)
+    },
+    validateToken() {
+      if (!this.access_token || this.access_token === '') {
+        this.token_status.valid = false
+        this.token_status.invalid = false
+        return
+      }
+
+      const token_split = this.access_token.split('.')
+      if (token_split.length !== 3) {
+        this.token_status.valid = false
+        this.token_status.invalid = true
+        this.token_status.invalid_message = 'Invalid Token'
+      } else {
+        try {
+          // eslint-disable-next-line no-unused-vars
+          const jwt_header = JSON.parse(atob(token_split[0]))
+          const jwt_payload = JSON.parse(atob(token_split[1]))
+
+          this.token_status.invalid = false
+          this.token_status.valid = true
+          this.token_status.valid_message = 'Valid'
+
+          if (jwt_payload.exp) {
+            const now = moment()
+            const expired = moment.unix(jwt_payload.exp)
+            if (now >= expired) {
+              this.token_status.valid = false
+              this.token_status.invalid = true
+              this.token_status.invalid_message = 'Expired'
+            } else {
+              this.token_status.valid_message = 'Active until ' + expired.format('YYYY-MM-DDTHH:mm:ssZ')
+            }
+          }
+        } catch (e) {
+          console.log(e)
+          this.token_status.valid = false
+          this.token_status.invalid = true
+          this.token_status.invalid_message = 'Invalid Token'
+        }
+      }
+    },
+    getToken() {
+      this.get_token.loading = true
+      getTokenB2B().then(res => {
+        if (!res.ok) {
+          return res.json().then(data => {
+            throw new Error(`${data.responseCode} - ${data.responseMessage}`)
+          })
+        }
+        return res.json()
+      }).then(resp_json => {
+        this.access_token = resp_json.accessToken
+        this.validateToken()
+        localStorage.setItem('str_symmetric_payload', JSON.stringify({
+          'endpoint': this.endpoint,
+          'access_token': this.access_token,
+          'payload': this.payload,
+        }))
+      }).catch(err => {
+        alert(err)
+        console.log(err)
+      }).finally(() => {
+        this.get_token.loading = false
+      })
+    }
   }
 }
 </script>

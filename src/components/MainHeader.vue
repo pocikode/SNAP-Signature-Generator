@@ -3,7 +3,7 @@
     <h1 class="text-center text-4xl">SNAP Signature Generator</h1>
     <nav>
       <RouterLink to="/">Settings</RouterLink>
-      <RouterLink to="/get-token-signature">Get Token Signature</RouterLink>
+      <RouterLink to="/oauth-signature">OAuth Signature</RouterLink>
       <RouterLink to="/service-signature">Service Signature</RouterLink>
     </nav>
     <div class="mt-3 py-3 flex flex-col items-center">

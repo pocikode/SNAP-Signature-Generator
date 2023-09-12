@@ -10,8 +10,8 @@ const router = createRouter({
       component: SettingVue
     },
     {
-      path: '/get-token-signature',
-      name: 'get-token-signature',
+      path: '/oauth-signature',
+      name: 'oauth-signature',
       component: () => import('../views/GetTokenSignatureView.vue')
     },
     {
